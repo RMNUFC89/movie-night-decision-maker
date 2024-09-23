@@ -1,7 +1,6 @@
 """
 Terminology:
 
-- Streamlit: A Python library used to create interactive web apps.
 - API (Application Programming Interface): Used to get live data from external sources (TMDB in this case).
 - Variables: Things you can change later, like a movie or genre.
 - JSON (JavaScript Object Notation): The format in which the API sends back data.
