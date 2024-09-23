@@ -11,7 +11,6 @@ Terminology:
 # Movie Night Decision Maker App
 
 # Importing libraries
-import streamlit as st
 import requests
 import psycopg2
 from dotenv import load_dotenv
@@ -38,17 +37,18 @@ def connect_to_db():
     )
     return connection
 
-# Function to insert data into PostgreSQL (No error handling)
+# Function to insert data into the PostgreSQL database
 def insert_data_to_db(connection, data):
     cursor = connection.cursor()
     for item in data['results']:
+        ## Insert data into the database
         cursor.execute(
             "INSERT INTO movies_shows (title, genre_ids) VALUES (%s, %s)",
             (item['title'], item['genre_ids'])
         )
-    connection.commit()
+    connection.commit()  # Saves changes to the database
     cursor.close()
-    connection.close()
+    connection.close()  # This should close the connection when everything is done
 
 # Function to fetch data from the TMDB API
 def fetch_data(api_url, api_token):
@@ -58,12 +58,6 @@ def fetch_data(api_url, api_token):
     response = requests.get(api_url, headers=headers)
     return response.json()
 
-# Streamlit app title
-st.title("Movie Night Decision Maker 🎬")
-
-# Introduction text
-st.write("Not sure what to watch? Let us find a movie or show for you!")
-
 # TMDB API (using the API Read Access Token)
 api_url = "https://api.themoviedb.org/3/movie/popular?language=en-US&page=1"
 api_token = api_key
@@ -72,8 +66,9 @@ api_token = api_key
 data = fetch_data(api_url, api_token)
 
 # If data is fetched, connect to the database and insert data:
+if data:
     db_connection = connect_to_db()
     insert_data_to_db(db_connection, data)
-    st.write("Data has been added to the database!")
+    print("Data has been added to the database!")
 else:
-    st.write("No data available at the moment.")
+    print("No data available at the moment.")
