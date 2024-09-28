@@ -38,32 +38,40 @@ def connect_to_db():
     return connection
 
 # Function to create the table
-def create_table(conn, cur):
+def create_table(cur):
     create_table_SQL = """
-     CREATE TABLE IF NOT EXISTS student.de10_rm_movies_shows (
+    CREATE TABLE IF NOT EXISTS student.de10_rm_movies_shows (
         id SERIAL PRIMARY KEY,
+        movie_id INTEGER NOT NULL,
+        cast TEXT NOT NULL,
+        crew TEXT NOT NULL,
+        keywords TEXT NOT NULL,
+        original_title VARCHAR(255) NOT NULL,
+        production_companies TEXT[] NOT NULL,
+        production_countries TEXT[] NOT NULL,
+        status VARCHAR(50) NOT NULL,
+        tagline TEXT NOT NULL,
         title VARCHAR(255) NOT NULL,
-        genre_ids TEXT[] NOT NULL,  -- Store genre IDs as an array
+        genre_ids TEXT[] NOT NULL,
         release_date DATE,
         overview TEXT NOT NULL,
         vote_average NUMERIC,
         vote_count INTEGER,
         poster_path VARCHAR(255) NOT NULL,
-        popularity NUMERIC,               -- Popularity of the movie
-        original_language VARCHAR(100) NOT NULL,    -- Language of the movie
-        budget BIGINT,                    -- Movie budget
-        revenue BIGINT                    -- Movie revenue
-     )
+        popularity NUMERIC,
+        original_language VARCHAR(100) NOT NULL,
+        budget BIGINT,
+        revenue BIGINT
+    )
     """
     cur.execute(create_table_SQL)
-    conn.commit()  # Commit the changes after creating the table
 
 # Function to insert/update data in the table
 def upsert_data(conn, cur, data):
     sql = """
     INSERT INTO student.de10_rm_movies_shows 
-    (title, genre_ids, release_date, overview, vote_average, vote_count, poster_path, popularity, original_language, budget, revenue)
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    (movie_id, title, genre_ids, release_date, overview, vote_average, vote_count, poster_path, popularity, original_language, budget, revenue, cast, crew, keywords, original_title, production_companies, production_countries, status, tagline)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     ON CONFLICT (title) DO UPDATE SET
         genre_ids = EXCLUDED.genre_ids,
         release_date = EXCLUDED.release_date,
@@ -74,25 +82,41 @@ def upsert_data(conn, cur, data):
         popularity = EXCLUDED.popularity,
         original_language = EXCLUDED.original_language,
         budget = EXCLUDED.budget,
-        revenue = EXCLUDED.revenue;
+        revenue = EXCLUDED.revenue,
+        cast = EXCLUDED.cast,
+        crew = EXCLUDED.crew,
+        keywords = EXCLUDED.keywords,
+        original_title = EXCLUDED.original_title,
+        production_companies = EXCLUDED.production_companies,
+        production_countries = EXCLUDED.production_countries,
+        status = EXCLUDED.status,
+        tagline = EXCLUDED.tagline;
     """
-    
-    # Loop through the data and insert each movie
+
     for item in data['results']:
         cur.execute(sql, (
-            item['title'], 
-            item['genre_ids'], 
-            item['release_date'], 
-            item['overview'], 
-            item['vote_average'], 
-            item['vote_count'], 
-            item['poster_path'], 
-            item['popularity'], 
-            item['original_language'], 
-            item['budget'], 
-            item['revenue']
+            item.get('id'),
+            item.get('title'),
+            item.get('genre_ids', []),
+            item.get('release_date'),
+            item.get('overview'),
+            item.get('vote_average'),
+            item.get('vote_count'),
+            item.get('poster_path'),
+            item.get('popularity'),
+            item.get('original_language'),
+            item.get('budget', 0),
+            item.get('revenue', 0),
+            item.get('cast', ''),
+            item.get('crew', ''),
+            item.get('keywords', ''),
+            item.get('original_title'),
+            item.get('production_companies', []),
+            item.get('production_countries', []),
+            item.get('status', ''),
+            item.get('tagline', '')
         ))
-    conn.commit()  # Commit after all data is inserted
+    conn.commit()
 
 # Function to fetch data from the TMDB API
 def fetch_data(api_url, api_token):
@@ -143,3 +167,15 @@ st.title("Movie Night Decision Maker 🎬")
 
 # Introduction text
 st.write("Not sure what to watch? Let us find a movie or show for you!")
+
+
+
+
+
+
+
+
+
+
+
+
