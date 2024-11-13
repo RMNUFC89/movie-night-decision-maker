@@ -167,14 +167,3 @@ st.title("Movie Night Decision Maker 🎬")
 
 # Introduction text
 st.write("Not sure what to watch? Let us find a movie or show for you!")
-
-
-
-
-
-
-
-
-
-
-
