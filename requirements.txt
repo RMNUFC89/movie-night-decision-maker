@@ -1,1 +1,6 @@
-streamlit
+streamlit                  # Required for building the app
+requests                   # To handle API requests
+pandas                     # For data handling and manipulation
+psycopg2-binary            # Required for PostgreSQL integration
+numpy                      # Used for handling numerical operations
+python-dotenv              # For loading environment variables securely (API keys, database credentials, etc.)
